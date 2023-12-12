@@ -82,4 +82,6 @@ if __name__ == "__main__":
                 print(new_line)
                 last_line_input = next_line_input
     except FileNotFoundError as e:
-        print("Must provide input file: {}", e)
+        print("Must provide input file: {}".format(e))
+    except ValueError as e:
+        print("Must provide an integer offset: {}".format(e))
