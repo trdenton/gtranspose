@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+import argparse
 
 def get_next_string(note):
     if note == 'e':
@@ -15,7 +16,7 @@ def get_next_string(note):
     return '?'
         
 
-def translate_line(line: str):
+def translate_line(line: str, offs: int):
     #notes = line.split("-")
     note = line[0]
     offset_fret_next_string = 5
@@ -35,7 +36,7 @@ def translate_line(line: str):
             if cur_fret != "":
                 old_fret = cur_fret
                 cur_fret_i = int(cur_fret)
-                new_fret_i = cur_fret_i - 12
+                new_fret_i = cur_fret_i + offs
                 new_fret = str(new_fret_i)
                 next_string_fret = '-'*len(old_fret)
                 if new_fret_i < 0:
@@ -66,11 +67,19 @@ def merge(last: str, new: str):
 
 
 if __name__ == "__main__":
-    with open(sys.argv[1], 'r') as f:
-        lines = f.readlines()
-        last_line_input = ""
-        for l in lines:
-            new_line,next_line_input = translate_line(l)
-            new_line = merge(last_line_input, new_line)
-            print(new_line)
-            last_line_input = next_line_input
+    parser = argparse.ArgumentParser(prog='gtranspose', description='transpose guitar tab by offset')
+    parser.add_argument('filename')
+    parser.add_argument('offset')
+    args = parser.parse_args()
+    try:
+        offs = int(args.offset)
+        with open(args.filename, 'r') as f:
+            lines = f.readlines()
+            last_line_input = ""
+            for l in lines:
+                new_line,next_line_input = translate_line(l, offs)
+                new_line = merge(last_line_input, new_line)
+                print(new_line)
+                last_line_input = next_line_input
+    except FileNotFoundError as e:
+        print("Must provide input file: {}", e)
